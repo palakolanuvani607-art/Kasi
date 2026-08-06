@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>College Canteen</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="hero">
+    <nav class="navbar">
+      <div class="logo">🍴 College Canteen</div>
+      <a href="#order" class="nav-btn">Order Now</a>
+    </nav>
+    <div class="hero-content">
+      <p class="tag">FRESH • TASTY • STUDENT FRIENDLY</p>
+      <h1>Your Campus, Your Canteen ❤️</h1>
+      <p>Order your favourite snacks and enjoy your break!</p>
+      <a href="#menu" class="primary-btn">View Menu</a>
+    </div>
+  </header>
+
+  <main>
+    <section id="menu" class="section">
+      <div class="section-title">
+        <p class="tag">OUR MENU</p>
+        <h2>Choose Your Favourite</h2>
+      </div>
+
+      <div class="menu-grid">
+        <article class="food-card">
+          <div class="food-icon">☕</div>
+          <h3>Tea</h3>
+          <p>Hot and refreshing campus tea.</p>
+          <strong>₹10</strong>
+          <button class="select-btn" data-item="Tea" data-price="10">Select</button>
+        </article>
+
+        <article class="food-card">
+          <div class="food-icon">🥟</div>
+          <h3>Samosa</h3>
+          <p>Crispy and delicious snack.</p>
+          <strong>₹15</strong>
+          <button class="select-btn" data-item="Samosa" data-price="15">Select</button>
+        </article>
+
+        <article class="food-card">
+          <div class="food-icon">🍦</div>
+          <h3>Ice Cream</h3>
+          <p>Cool and creamy treat.</p>
+          <strong>₹30</strong>
+          <button class="select-btn" data-item="Ice Cream" data-price="30">Select</button>
+        </article>
+
+        <article class="food-card">
+          <div class="food-icon">🥪</div>
+          <h3>Sandwich</h3>
+          <p>A tasty and filling snack.</p>
+          <strong>₹40</strong>
+          <button class="select-btn" data-item="Sandwich" data-price="40">Select</button>
+        </article>
+      </div>
+    </section>
+
+    <section id="order" class="section order-section">
+      <div class="section-title">
+        <p class="tag">PLACE YOUR ORDER</p>
+        <h2>Order Form</h2>
+      </div>
+
+      <form id="orderForm" class="order-form">
+        <div class="form-grid">
+          <label>
+            Name
+            <input type="text" id="name" name="name" placeholder="Enter your name" required>
+          </label>
+
+          <label>
+            Roll Number
+            <input type="text" id="rollNumber" name="rollNumber" placeholder="Enter roll number" required>
+          </label>
+
+          <label>
+            Phone Number
+            <input type="tel" id="phone" name="phone" placeholder="Enter phone number"
+                   pattern="[0-9]{10}" maxlength="10" required>
+          </label>
+
+          <label>
+            Item
+            <select id="item" name="item" required>
+              <option value="">Select an item</option>
+              <option value="Tea" data-price="10">Tea - ₹10</option>
+              <option value="Samosa" data-price="15">Samosa - ₹15</option>
+              <option value="Ice Cream" data-price="30">Ice Cream - ₹30</option>
+              <option value="Sandwich" data-price="40">Sandwich - ₹40</option>
+            </select>
+          </label>
+
+          <label>
+            Quantity
+            <input type="number" id="quantity" name="quantity" min="1" max="20" value="1" required>
+          </label>
+
+          <label>
+            Payment Method
+            <select id="payment" name="payment" required>
+              <option value="">Select payment method</option>
+              <option value="Cash">Cash</option>
+              <option value="UPI">UPI</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="total-box">
+          <span>Total Price</span>
+          <span id="totalPrice">₹0</span>
+        </div>
+
+        <button type="submit" class="submit-btn">Place Order</button>
+        <p id="status" class="status" aria-live="polite"></p>
+      </form>
+    </section>
+  </main>
+
+  <footer>
+    <p>© 2026 College Canteen • Made for students</p>
+  </footer>
+
+  <script>
+    /*
+      GOOGLE SHEETS INTEGRATION
+      -----------------------------------------
+      1. Create a Google Sheet.
+      2. Create a Google Apps Script connected to that Sheet.
+      3. Deploy the Apps Script as a Web App.
+      4. Copy the Web App URL and paste it below.
+
+      Example:
+      const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/YOUR_ID/exec";
+    */
+    const GOOGLE_SCRIPT_URL = "PASTE_YOUR_GOOGLE_APPS_SCRIPT_WEB_APP_URL_HERE";
+
+    const itemSelect = document.getElementById("item");
+    const quantityInput = document.getElementById("quantity");
+    const totalPrice = document.getElementById("totalPrice");
+    const orderForm = document.getElementById("orderForm");
+    const status = document.getElementById("status");
+
+    function getSelectedPrice() {
+      const option = itemSelect.options[itemSelect.selectedIndex];
+      return Number(option?.dataset.price || 0);
+    }
+
+    function updateTotal() {
+      const price = getSelectedPrice();
+      const quantity = Number(quantityInput.value || 0);
+      totalPrice.textContent = "₹" + (price * quantity);
+    }
+
+    itemSelect.addEventListener("change", updateTotal);
+    quantityInput.addEventListener("input", updateTotal);
+
+    document.querySelectorAll(".select-btn").forEach(button => {
+      button.addEventListener("click", () => {
+        const item = button.dataset.item;
+        itemSelect.value = item;
+        updateTotal();
+        document.getElementById("order").scrollIntoView({ behavior: "smooth" });
+      });
+    });
+
+    orderForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const item = itemSelect.value;
+      const quantity = Number(quantityInput.value);
+      const price = getSelectedPrice();
+      const total = price * quantity;
+
+      const orderData = {
+        name: document.getElementById("name").value.trim(),
+        rollNumber: document.getElementById("rollNumber").value.trim(),
+        phone: document.getElementById("phone").value.trim(),
+        item: item,
+        quantity: quantity,
+        price: price,
+        total: total,
+        payment: document.getElementById("payment").value
+      };
+
+      if (!item || quantity < 1) {
+        status.textContent = "Please select an item and quantity.";
+        status.className = "status error";
+        return;
+      }
+
+      if (GOOGLE_SCRIPT_URL.includes("PASTE_YOUR")) {
+        status.textContent = "Order details are ready, but Google Sheets is not connected yet.";
+        status.className = "status error";
+        return;
+      }
+
+      status.textContent = "Submitting your order...";
+      status.className = "status";
+
+      try {
+        const response = await fetch(GOOGLE_SCRIPT_URL, {
+          method: "POST",
+          body: JSON.stringify(orderData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          status.textContent = "✅ Order placed successfully!";
+          status.className = "status success";
+          orderForm.reset();
+          quantityInput.value = 1;
+          updateTotal();
+        } else {
+          throw new Error(result.message || "Unable to submit order.");
+        }
+      } catch (error) {
+        status.textContent = "❌ Could not submit the order. Please check your Google Apps Script URL.";
+        status.className = "status error";
+        console.error(error);
+      }
+    });
+
+    updateTotal();
+  </script>
+</body>
+</html>
